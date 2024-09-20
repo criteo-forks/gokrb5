@@ -354,6 +354,10 @@ func (r *Realm) parseLines(name string, lines []string) (err error) {
 			ignore = true
 			err = UnsupportedDirective{"v4 configurations are not supported"}
 		}
+		if strings.Contains(line, "auth_to_local") {
+			ignore = true
+			err = UnsupportedDirective{"auth_to_local* configurations are not supported"}
+		}
 		if strings.Contains(line, "{") {
 			c++
 			if ignore {
@@ -373,7 +377,11 @@ func (r *Realm) parseLines(name string, lines []string) (err error) {
 				continue
 			}
 		}
+		if !strings.Contains(line, "=") {
+			return InvalidErrorf(
+				"gokrb5.v8.config.krb5conf.Realm.parseLines: abnormal parser situation, probably unsupported config directive for realm %s", r.Realm)
 
+		}
 		p := strings.Split(line, "=")
 		key := strings.TrimSpace(strings.ToLower(p[0]))
 		v := strings.TrimSpace(p[1])
